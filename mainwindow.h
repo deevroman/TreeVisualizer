@@ -10,10 +10,6 @@
 #include "Trees.h"
 #include <QGraphicsScene>
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
-QT_END_NAMESPACE
-
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -34,7 +30,6 @@ public:
     int SIZE_NODE = 25;
     int SIZE_BORDER = 25;
 private:
-    Ui::MainWindow *ui;
     void paintTree();
     void paintAVLTree(AVLTree<int>::node*, int, int, int);
 private slots:

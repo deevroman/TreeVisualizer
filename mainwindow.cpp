@@ -1,15 +1,11 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
-#include <QPainter>
 #include <QPushButton>
 #include "Trees.h"
 #include <QDebug>
 #include <QScrollArea>
 #include <QVBoxLayout>
 #include <QLabel>
-#include <QBoxLayout>
 #include <QSizePolicy>
-#include <QLayout>
 #include <QLineEdit>
 #include <vector>
 #include <QtGui>
@@ -20,10 +16,8 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
 {
-    ui->setupUi(this);
-
+    this->resize(1134, 681);
     TreeViewScroll = new QScrollArea(this);
     TreeViewScroll->move(148, 0);
 
@@ -68,10 +62,7 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 
-MainWindow::~MainWindow()
-{
-    delete ui;
-}
+MainWindow::~MainWindow() = default;
 
 void MainWindow::clickEnterButton(){
     QString text = input->text();

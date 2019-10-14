@@ -1,11 +1,22 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.15.3)
 project(myqtproject)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
 
-set(SOURCE_FILES main.cpp)
-find_package(Qt5Widgets REQUIRED)
+set(CMAKE_BUILD_TYPE "Release")
+if(CMAKE_VERSION VERSION_LESS "3.7.0")
+    set(CMAKE_INCLUDE_CURRENT_DIR ON)
+endif()
 
-add_executable(myqtproject ${SOURCE_FILES})
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
+
+add_executable(
+        myqtproject
+        mainwindow.cpp
+        mainwindow.h
+        main.cpp
+        )
 
 target_link_libraries(myqtproject Qt5::Widgets)
