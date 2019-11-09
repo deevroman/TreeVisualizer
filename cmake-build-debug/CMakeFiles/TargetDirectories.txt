@@ -1,4 +1,0 @@
-/Users/deevroman/QtProjects/TreeVisualizer/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/Users/deevroman/QtProjects/TreeVisualizer/cmake-build-debug/CMakeFiles/edit_cache.dir
-/Users/deevroman/QtProjects/TreeVisualizer/cmake-build-debug/CMakeFiles/myqtproject.dir
-/Users/deevroman/QtProjects/TreeVisualizer/cmake-build-debug/CMakeFiles/myqtproject_autogen.dir
