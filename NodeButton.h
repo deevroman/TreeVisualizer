@@ -17,7 +17,7 @@ public:
     explicit NodeButton(QObject *parent = nullptr){};
     explicit NodeButton(const QRectF & rect, QGraphicsItem * parent = nullptr): QGraphicsRectItem(rect, parent) {}
     ~NodeButton() = default;
-    size_t nodePointer;
+    int nodePointer;
 signals:
     void clickNode(int);
 

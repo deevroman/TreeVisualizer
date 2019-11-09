@@ -7,7 +7,6 @@
 #include <QLabel>
 #include <QSizePolicy>
 #include <QLineEdit>
-#include <vector>
 #include <QtGui>
 #include <QGraphicsScene>
 #include <QGraphicsView>
@@ -17,7 +16,11 @@
 #include <QHBoxLayout>
 #include <QGroupBox>
 #include <algorithm>
-#include <QMovie>
+#include <QSlider>
+#include <QGraphicsTextItem>
+#include <cmath>
+#include <QDialog>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
@@ -27,15 +30,16 @@ MainWindow::MainWindow(QWidget *parent)
     TreeViewScene = new QGraphicsScene;
     TreeView = new QGraphicsView(TreeViewScene, this);
     CentralGridLayot->addWidget(TreeView, 0, 1);
-    TreeView->move(148, 0);
+    int LeftBarWidth = 168;
+    TreeView->move(LeftBarWidth, 0);
 
     this->setMinimumSize(this->size());
 
     LeftBar = new QWidget(this);
     CentralGridLayot->addWidget(LeftBar, 0, 0);
 
-    LeftBar->setMinimumSize(148, this->height());
-    LeftBar->setMaximumWidth(148);
+    LeftBar->setMinimumSize(LeftBarWidth, this->height());
+    LeftBar->setMaximumWidth(LeftBarWidth);
     LeftBar->setStyleSheet("QWidget{background-color:gray}");
 
     auto GLayout = new QGridLayout();
@@ -75,17 +79,29 @@ MainWindow::MainWindow(QWidget *parent)
     connect(enterDelete, SIGNAL(clicked()), this, SLOT(clickEnterDeleteButton()));
     GLayout->addLayout(inputButtonsLayout, 2, 0, 1, 2);
 
+    zoomer = new QSlider(Qt::Horizontal, this);
+    zoomer->setRange(0, 50);
+    zoomer->setValue(35);
+
+    connect(zoomer, &QSlider::valueChanged, this, &MainWindow::Zoomer);
+    GLayout->addWidget(zoomer, 3, 0, 1, 2);
     historyScroll = new QScrollArea();
-    GLayout->addWidget(historyScroll, 3, 0, 1, 2);
+    GLayout->addWidget(historyScroll, 4, 0, 1, 2);
+
     clearHistory = new QPushButton(trUtf8("Очистить историю"));
-    GLayout->addWidget(clearHistory, 4, 0, 1, 2);
+    GLayout->addWidget(clearHistory, 5, 0, 1, 2);
     connect(clearHistory, SIGNAL(clicked()), this, SLOT(clickClearHistory()));
+
+    clearTrees = new QPushButton(trUtf8("Очистить деревья"));
+    GLayout->addWidget(clearTrees, 6, 0, 1, 2);
+    connect(clearTrees, SIGNAL(clicked()), this, SLOT(clickClearTrees()));
+
     history = new QLabel(historyScroll);
     history->setText(trUtf8("История"));
     historyScroll->setWidget(history);
     LeftBar->setLayout(GLayout);
     TreeView->setStyleSheet("QWidget{background-color:green}");
-    TreeView->setMinimumSize(this->width() - 148, this->height());
+    TreeView->setMinimumSize(this->width() - LeftBarWidth, this->height());
 //    TreeView->setMaximumSize(this->width() - 148, this->height());
     TreeView->show();
     auto window = new QWidget;
@@ -94,9 +110,27 @@ MainWindow::MainWindow(QWidget *parent)
     window->setLayout(CentralGridLayot);
     setCentralWidget(window);
     inputKey->setFocus();
+    long double nowScale = 1 + ((35)*log(50 - 45 + 14)/1.5)/50.0;
+    TreeView->scale((nowScale) / lastScale, (nowScale) / lastScale);
+    lastScale = nowScale;
 }
 
 MainWindow::~MainWindow() = default;
+
+void MainWindow::clickClearTrees(){
+    AVL.clear();
+    RBTree.clear();
+    Splay.clear();
+    paintTree();
+    history->setText(trUtf8("История"));
+    history->adjustSize();
+}
+
+void MainWindow::Zoomer(int value){
+    long double nowScale = 1 + ((value-10)*log(50 - value + 10 + 14)/1.5)/50.0;
+    TreeView->scale((nowScale) / lastScale, (nowScale) / lastScale);
+    lastScale = nowScale;
+}
 
 bool MainWindow::checkInput(const QString s){
     QStringList text_spl = s.split(" ",  QString::SkipEmptyParts);
@@ -172,35 +206,40 @@ void MainWindow::clickDeleteNode(int nodeKey) {
 }
 
 void MainWindow::paintTree(){
-    std::vector<int> stat;
+    int lg = log10(std::max(1, abs(AVL.getMax()) - 1));
+    SIZE_NODE = std::max(CONST_SIZE_NODE + 5,
+                        CONST_SIZE_NODE + 5*lg + 1);
     for (const auto &item : list_buttons) {
         disconnect(item, SIGNAL(clickNode(int)), this, SLOT(clickDeleteNode(int)));
     }
     TreeViewScene->clear();
     list_buttons.clear();
     if(AVLButton->isChecked()){
-        stat = getHeightStat(AVL.root);
-        paintAVLTree(AVL.root, 0, 0, std::max(0, (int)stat.size()-2));
+        PaintCurTree(AVL.root, 0, 0);
     } else if(SplayButton->isChecked()){
-        stat = getHeightStat(Splay.root);
-        paintAVLTree(Splay.root, 0, 0, std::max(0, (int)stat.size()-2));
+        PaintCurTree(Splay.root, 0, 0);
     } else if(RBButton->isChecked() && !is_leaf(RBTree.root)){
-        stat = getHeightStat(RBTree.root);
-        paintAVLTree(RBTree.root, 0, 0, std::max(0, (int)stat.size()-2));
+        PaintCurTree(RBTree.root, 0, 0);
     }
 }
 
 template<typename T>
-void MainWindow::paintAVLTree(T now, int x, int y, int level) {
-    if(now == nullptr){
+void MainWindow::PaintCurTree(T now, int x, int y) {
+    if(now == nullptr || is_leaf(now)){
         return;
     }
     auto tmp_but = new NodeButton(QRectF(y, x, SIZE_NODE, SIZE_NODE));
     tmp_but->setBrush(QBrush(getNodeColor(now)));
     TreeViewScene->addItem(tmp_but);
     connect(tmp_but, SIGNAL(clickNode(int)), this, SLOT(clickDeleteNode(int)));
-    auto tmp_text = TreeViewScene->addText(QString::number(now->key));
-    tmp_text->setPos(y, x);
+    auto txt = new QGraphicsTextItem(QString::number(now->key));
+    TreeViewScene->addItem(txt);
+//    auto tmp_text = TreeViewScene->addText(QString::number(now->key));
+    auto sz = txt->boundingRect();
+    txt->setPos(y + (SIZE_NODE/2 - sz.width()/2), x  + SIZE_NODE/2 - sz.height()/2);
+    if(tmp_but->brush().color() != Qt::black){
+        txt->setDefaultTextColor(Qt::black);
+    }
 
     list_buttons.push_back(tmp_but);
     tmp_but->nodePointer = now->key;
@@ -211,13 +250,13 @@ void MainWindow::paintAVLTree(T now, int x, int y, int level) {
         int mx = getSize<T>(now->left->right) + 1;
         int to_x = x + SIZE_NODE*2, to_y = y - (mx)*SIZE_NODE;
         list_lines.push_back(TreeViewScene->addLine(y + SIZE_NODE/2, x + SIZE_NODE, to_y + SIZE_NODE/2, to_x));
-        paintAVLTree(now->left, to_x, to_y, level-1);
+        PaintCurTree(now->left, to_x, to_y);
     }
     if(now->right != nullptr && !is_leaf(now->right)){
         int mx = getSize<T>(now->right->left) + 1;
         int to_x = x + SIZE_NODE*2, to_y = y + (mx)*SIZE_NODE;
         list_lines.push_back(TreeViewScene->addLine(y + SIZE_NODE/2, x + SIZE_NODE, to_y + SIZE_NODE/2, to_x));
-        paintAVLTree(now->right, to_x, to_y, level-1);
+        PaintCurTree(now->right, to_x, to_y);
     }
 }
 
@@ -238,13 +277,13 @@ QColor MainWindow::getNodeColor(RedBlackTree<int>::node* cur){
 }
 
 bool MainWindow::is_leaf(RedBlackTree<int>::node* cur){
-    return (cur->left == nullptr && cur->right == nullptr);
+    return cur == cur->left && cur == cur->right;
 }
 bool MainWindow::is_leaf(AVLTree<int>::node* cur){
-    return false;
+    return cur == nullptr;
 }
 bool MainWindow::is_leaf(SplayTree<int>::node* cur){
-    return false;
+    return cur == nullptr;
 }
 
 void MainWindow::clickClearHistory(){

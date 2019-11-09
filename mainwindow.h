@@ -12,7 +12,9 @@
 #include <QGraphicsScene>
 #include <QRadioButton>
 #include "NodeButton.h"
-
+#include <QGraphicsView>
+#include <QSlider>
+#include <QGraphicsScene>
 
 class MainWindow : public QMainWindow
 {
@@ -26,6 +28,7 @@ public:
     QScrollArea* historyScroll;
     QPushButton* enterInput;
     QPushButton* clearHistory;
+    QPushButton* clearTrees;
     QLineEdit* inputKey;
     QPushButton* enterDelete;
     QWidget* LeftBar;
@@ -33,17 +36,20 @@ public:
     QRadioButton* AVLButton;
     QRadioButton* RBButton;
     QRadioButton* SplayButton;
+    QSlider* zoomer;
+    long double lastScale = 1;
     QLabel* history;
     QVector<NodeButton*> list_buttons;
     QVector<QGraphicsLineItem*> list_lines;
     AVLTree<int> AVL;
     SplayTree<int> Splay;
     RedBlackTree<int> RBTree;
-    const int SIZE_NODE = 30;
+    const int CONST_SIZE_NODE = 30;
+    int SIZE_NODE = 30;
     const int SIZE_BORDER = 30;
 private:
     template <typename T>
-    void paintAVLTree(T now, int x, int y, int level);
+    void PaintCurTree(T now, int x, int y);
     void paintTree();
 private slots:
     void clickEnterInsertButton();
@@ -64,5 +70,9 @@ private slots:
     bool is_leaf(SplayTree<int>::node *cur);
 
     bool is_leaf(AVLTree<int>::node *cur);
+
+    void Zoomer(int value);
+
+    void clickClearTrees();
 };
 #endif // MAINWINDOW_H

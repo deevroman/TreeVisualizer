@@ -10,6 +10,7 @@ set(CMAKE_AUTOUIC ON)
 if(CMAKE_VERSION VERSION_LESS "3.7.0")
     set(CMAKE_INCLUDE_CURRENT_DIR ON)
 endif()
+#set(CMAKE_BUILD_TYPE "Relese")
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 add_executable(
         myqtproject
