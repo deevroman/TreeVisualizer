@@ -1,7 +1,7 @@
 # This file is used to ignore files which are generated
 # ----------------------------------------------------------------------------
-.idea
-cmake-build-debug
+/.idea/
+/cmake-build-debug/
 *~
 *.autosave
 *.a
@@ -71,4 +71,3 @@ Thumbs.db
 # --------
 *.dll
 *.exe
-
