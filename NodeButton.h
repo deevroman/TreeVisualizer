@@ -1,6 +1,3 @@
-//
-// Created by Деев Роман on 15.10.2019.
-//
 #include <QObject>
 #include <QGraphicsItem>
 #include <QPainter>
