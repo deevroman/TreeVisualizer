@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15.3)
-project(myqtproject)
+project(TreeVisualizer)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -13,10 +13,10 @@ endif()
 #set(CMAKE_BUILD_TYPE "Relese")
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 add_executable(
-        myqtproject
+        TreeVisualizer
         mainwindow.cpp
         mainwindow.h
         main.cpp
         NodeButton.h)
 
-target_link_libraries(myqtproject Qt5::Widgets)
+target_link_libraries(TreeVisualizer Qt5::Widgets)
